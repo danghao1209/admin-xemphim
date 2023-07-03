@@ -10,7 +10,7 @@ import {
   Link,
   Text,
 } from "@nextui-org/react";
-import Layout from "./layout";
+import RootLayout from "./layout";
 import Content from "./content";
 
 const getTokenFromLocalStorage = (): string | null => {
@@ -19,8 +19,6 @@ const getTokenFromLocalStorage = (): string | null => {
 interface CountResponse {
   userCount: number;
   filmCount: number;
-  dataUser: any;
-  dataPhim: any;
 }
 const darkTheme = createTheme({
   type: "dark",
@@ -48,8 +46,8 @@ export default function Home() {
               },
             }
           );
-          const { userCount, filmCount, dataUser, dataPhim } = response.data;
-          setData({ userCount, filmCount, dataUser, dataPhim });
+          const { userCount, filmCount } = response.data;
+          setData({ userCount, filmCount });
         }
       } catch (e) {
         console.log(e);
@@ -58,8 +56,8 @@ export default function Home() {
   }, []);
   return (
     <NextUIProvider theme={darkTheme}>
-      <Layout>
-        <Navbar isCompact isBordered variant="sticky">
+      <RootLayout>
+        <Navbar isCompact isBordered variant="sticky" className="z-[2]">
           <Navbar.Brand>
             {/* <AcmeLogo /> */}
             <Text b color="inherit" hideIn="xs">
@@ -68,7 +66,9 @@ export default function Home() {
           </Navbar.Brand>
           <Navbar.Content hideIn="xs" variant="underline">
             <Navbar.Link href="/">Home</Navbar.Link>
-            <Navbar.Link href="/films">Films</Navbar.Link>
+            <Navbar.Link isActive href="/films">
+              Films
+            </Navbar.Link>
             <Navbar.Link href="/users">Users</Navbar.Link>
           </Navbar.Content>
           <Navbar.Content>
@@ -79,8 +79,9 @@ export default function Home() {
             </Navbar.Item>
           </Navbar.Content>
         </Navbar>
-        <Content data={data}></Content>
-      </Layout>
+
+        <Content></Content>
+      </RootLayout>
     </NextUIProvider>
   );
 }

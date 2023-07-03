@@ -19,8 +19,6 @@ const getTokenFromLocalStorage = (): string | null => {
 interface CountResponse {
   userCount: number;
   filmCount: number;
-  dataUser: any;
-  dataPhim: any;
 }
 const darkTheme = createTheme({
   type: "dark",
@@ -28,34 +26,40 @@ const darkTheme = createTheme({
     colors: {},
   },
 });
-
+interface ResponseRq {
+  _id: string;
+  data: [];
+}
 export default function Home() {
   const router = useRouter();
-  const [data, setData] = useState<CountResponse>();
+  const [data, setData] = useState<[]>();
   useEffect(() => {
-    (async () => {
-      try {
-        const token = getTokenFromLocalStorage();
-        if (!token) {
-          router.push("/login");
-        } else {
-          const response = await axios.post<CountResponse>(
-            "http://localhost:6945/api/admin/count",
-            {},
-            {
-              headers: {
-                Authorization: token,
-              },
-            }
-          );
-          const { userCount, filmCount, dataUser, dataPhim } = response.data;
-          setData({ userCount, filmCount, dataUser, dataPhim });
+    try {
+      (async () => {
+        try {
+          const token = getTokenFromLocalStorage();
+          if (!token) {
+            router.push("/login");
+          } else {
+            const response = await axios.get<ResponseRq>(
+              "http://localhost:6945/api/admin/listuser",
+              {
+                headers: {
+                  Authorization: token,
+                },
+              }
+            );
+            const { data } = response.data;
+            console.log(data);
+            setData(data);
+          }
+        } catch (e) {
+          console.log(e);
         }
-      } catch (e) {
-        console.log(e);
-      }
-    })();
+      })();
+    } catch (error) {}
   }, []);
+
   return (
     <NextUIProvider theme={darkTheme}>
       <Layout>
@@ -69,7 +73,9 @@ export default function Home() {
           <Navbar.Content hideIn="xs" variant="underline">
             <Navbar.Link href="/">Home</Navbar.Link>
             <Navbar.Link href="/films">Films</Navbar.Link>
-            <Navbar.Link href="/users">Users</Navbar.Link>
+            <Navbar.Link isActive href="/users">
+              Users
+            </Navbar.Link>
           </Navbar.Content>
           <Navbar.Content>
             <Navbar.Item>
@@ -79,7 +85,8 @@ export default function Home() {
             </Navbar.Item>
           </Navbar.Content>
         </Navbar>
-        <Content data={data}></Content>
+
+        <Content></Content>
       </Layout>
     </NextUIProvider>
   );

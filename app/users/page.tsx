@@ -12,6 +12,7 @@ import {
 } from "@nextui-org/react";
 import Layout from "./layout";
 import Content from "./content";
+import ToastMessage from "../Toast";
 
 const getTokenFromLocalStorage = (): string | null => {
   return localStorage.getItem("token");
@@ -19,8 +20,6 @@ const getTokenFromLocalStorage = (): string | null => {
 interface CountResponse {
   userCount: number;
   filmCount: number;
-  dataUser: any;
-  dataPhim: any;
 }
 const darkTheme = createTheme({
   type: "dark",
@@ -48,8 +47,8 @@ export default function Home() {
               },
             }
           );
-          const { userCount, filmCount, dataUser, dataPhim } = response.data;
-          setData({ userCount, filmCount, dataUser, dataPhim });
+          const { userCount, filmCount } = response.data;
+          setData({ userCount, filmCount });
         }
       } catch (e) {
         console.log(e);
@@ -69,7 +68,9 @@ export default function Home() {
           <Navbar.Content hideIn="xs" variant="underline">
             <Navbar.Link href="/">Home</Navbar.Link>
             <Navbar.Link href="/films">Films</Navbar.Link>
-            <Navbar.Link href="/users">Users</Navbar.Link>
+            <Navbar.Link isActive href="/users">
+              Users
+            </Navbar.Link>
           </Navbar.Content>
           <Navbar.Content>
             <Navbar.Item>
@@ -79,8 +80,10 @@ export default function Home() {
             </Navbar.Item>
           </Navbar.Content>
         </Navbar>
-        <Content data={data}></Content>
+
+        <Content></Content>
       </Layout>
+      <ToastMessage />
     </NextUIProvider>
   );
 }
