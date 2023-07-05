@@ -23,6 +23,7 @@ function Content() {
   const [kind, setKind] = useState<string>("");
   const [idTrailer, setIdTrailer] = useState<string>("");
   const [base64Image, setBase64Image] = useState<string | null>(null);
+  const [base64Video, setBase64Video] = useState<string | null>(null);
 
   const handleUpload = async () => {
     if (!base64Image || !name || !description || !kind || !idTrailer) {
@@ -36,9 +37,10 @@ function Content() {
       }
 
       const response: AxiosResponse = await axios.post(
-        "http://localhost:6945/api/admin/film",
+        "http://localhost:6945/api/film/films",
         {
           image: base64Image,
+          video: base64Video,
           name,
           description,
           kind,
@@ -73,7 +75,7 @@ function Content() {
           router.push("/login");
         } else {
           const response = await axios.get<ResponseRq>(
-            "http://localhost:6945/api/admin/listfilm",
+            "http://localhost:1209/api/admin/listfilm",
             {
               headers: {
                 Authorization: token,
@@ -216,6 +218,7 @@ function Content() {
               color="primary"
               size="lg"
               placeholder="Ảnh"
+              accept="image/*"
               className="content-center"
               onChange={(e) => {
                 const file = (e.target as HTMLInputElement)?.files?.[0];
@@ -231,15 +234,30 @@ function Content() {
                 }
               }}
             />
+            <label>Chọn trailer</label>
             <Input
               clearable
               bordered
               fullWidth
+              type="file"
               color="primary"
               size="lg"
-              placeholder="ID trailer"
-              value={idTrailer}
-              onChange={(e) => setIdTrailer(e.target.value)}
+              accept="video/*"
+              placeholder="Video"
+              className="content-center"
+              onChange={(e) => {
+                const file = (e.target as HTMLInputElement)?.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+
+                  reader.onloadend = () => {
+                    const base64String = reader.result as string;
+                    setBase64Image(base64String);
+                  };
+
+                  reader.readAsDataURL(file);
+                }
+              }}
             />
           </Modal.Body>
           <Modal.Footer>

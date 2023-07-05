@@ -4,6 +4,7 @@ import axios, { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { DeleteUser } from "./DeleteFilm";
+import { DeleteEpisode } from "./DeleteEpisode";
 import { Modal, Input, Button, Popover, Text, Image } from "@nextui-org/react";
 import ToastMessage, { success, error } from "@/app/Toast";
 
@@ -22,12 +23,11 @@ function Content({ params }: { params: any }) {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [kind, setKind] = useState<string>("");
-  const [idTrailer, setIdTrailer] = useState<string>("");
   const [base64Image, setBase64Image] = useState<string | null>(null);
   const [base64Video, setBase64Video] = useState<string | null>(null);
 
   const handleUpload = async () => {
-    if (!base64Image || !name || !description || !kind || !idTrailer) {
+    if (!base64Image || !name || !description || !kind) {
       return;
     }
     try {
@@ -36,9 +36,9 @@ function Content({ params }: { params: any }) {
         router.push("/login");
         return;
       }
-
+      console.log("click");
       const response: AxiosResponse = await axios.post(
-        "http://localhost:6945/api/admin/episode",
+        "http://localhost:6945/api/film/episodes",
         {
           id: params.slug,
           image: base64Image,
@@ -46,7 +46,6 @@ function Content({ params }: { params: any }) {
           name,
           description,
           kind,
-          idTrailer,
         },
         {
           headers: {
@@ -78,7 +77,7 @@ function Content({ params }: { params: any }) {
           router.push("/login");
         } else {
           const response = await axios.get<ResponseRq>(
-            `http://localhost:6945/api/admin/film/${params.slug}`,
+            `http://localhost:1209/api/film/${params.slug}`,
             {
               headers: {
                 Authorization: token,
@@ -86,6 +85,7 @@ function Content({ params }: { params: any }) {
             }
           );
           const { data } = response.data;
+          console.log(data);
           setData(data);
         }
       })();
@@ -142,18 +142,32 @@ function Content({ params }: { params: any }) {
             Các Tập:
           </Text>
           <div className="flex">
-            {data?.episode.map((item: any, i: number) => {
+            {data?.episode?.map((item: any, i: number) => {
               return (
-                <Button
-                  auto
-                  color="secondary"
-                  rounded
-                  flat
-                  key={i}
-                  className="mr-[5px]"
-                >
-                  {item.name}
-                </Button>
+                <div>
+                  <div className="flex items-center justify-center mb-[20px]">
+                    <Popover>
+                      <Popover.Trigger>
+                        <Button
+                          auto
+                          color="secondary"
+                          rounded
+                          flat
+                          key={i}
+                          className="mr-[5px]"
+                        >
+                          {item.name}
+                        </Button>
+                      </Popover.Trigger>
+                      <Popover.Content>
+                        <DeleteEpisode
+                          filmId={params.slug}
+                          idEpisode={item._id}
+                        />
+                      </Popover.Content>
+                    </Popover>
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -255,16 +269,6 @@ function Content({ params }: { params: any }) {
                   reader.readAsDataURL(file);
                 }
               }}
-            />
-            <Input
-              clearable
-              bordered
-              fullWidth
-              color="primary"
-              size="lg"
-              placeholder="ID trailer"
-              value={idTrailer}
-              onChange={(e) => setIdTrailer(e.target.value)}
             />
           </Modal.Body>
           <Modal.Footer>
